@@ -33,6 +33,8 @@ class SaltClient(discord.Client):
 
         elif cmd == "skrid":
             if message.guild.name in players:
+                print(" " * 500, end='\r')
+                print(players, end='\r')
                 await players[message.guild.name].channel.disconnect()
             else:
                 await message.channel.send("I'm not even in a channel")

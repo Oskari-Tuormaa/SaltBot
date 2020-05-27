@@ -21,6 +21,8 @@ class Player:
         self.loop = loop
 
     def connected(self, future):
+        print(" " * 500, end='\r')
+        print(self.players, end='\r')
         self.channel = future.result()
         self.check_queue()
 
@@ -48,4 +50,6 @@ class Player:
         if self.channel.guild.name in self.players:
             await self.channel.disconnect()
             self.players.pop(self.channel.guild.name)
+            print(" " * 500, end='\r')
+            print(self.players, end='\r')
 
