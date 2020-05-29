@@ -39,11 +39,11 @@ class SaltClient(discord.Client):
 
             elif cmd == "skrid" or cmd == "leave":
                 if message.guild.name in players:
-                    print(" " * 500, end='\r')
-                    print(", ".join(players), end='\r')
                     await players[message.guild.name].channel.disconnect()
                     players[message.guild.name].clear_queue()
-                    players[message.guild.name] = None
+                    players.pop(message.guild.name)
+                    print(" " * 500, end='\r')
+                    print(", ".join(players), end='\r')
                 else:
                     await message.channel.send("I'm not even in a channel")
 
