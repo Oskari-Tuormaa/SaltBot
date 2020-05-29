@@ -21,7 +21,7 @@ class SaltClient(discord.Client):
                 await message.delete()
 
             await self.dispatcher(cmds, message)
-            
+
     async def dispatcher(self, cmds, message):
         for cmd in cmds:
             if os.path.isfile(f'./sound_bytes/memes/{cmd}.mp3'):
@@ -37,11 +37,13 @@ class SaltClient(discord.Client):
             elif cmd == "help":
                 await message.channel.send("{} is a big dumb baby".format(message.author.name))
 
-            elif cmd == "skrid":
+            elif cmd == "skrid" or cmd == "leave":
                 if message.guild.name in players:
                     print(" " * 500, end='\r')
                     print(", ".join(players), end='\r')
                     await players[message.guild.name].channel.disconnect()
+                    players[message.guild.name].clear_queue()
+                    players[message.guild.name] = None
                 else:
                     await message.channel.send("I'm not even in a channel")
 

@@ -26,6 +26,9 @@ class Player:
         self.channel = future.result()
         self.check_queue()
 
+    def clear_queue(self):
+        self.queue.clear()
+
     def add_to_queue(self, cmd, *args):
         self.queue.append((cmd, *args))
         if len(self.queue) == 1 and self.connectionTask.done() and not self.channel.is_playing():
@@ -38,6 +41,9 @@ class Player:
     def check_queue(self):
         while not self.connectionTask.done():
             continue
+
+        if not self.channel.is_connected():
+            return
 
         if len(self.queue) != 0:
             cmd, args = self.queue.popleft()
