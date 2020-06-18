@@ -13,7 +13,7 @@ class SaltClient(discord.Client):
         print("Ready!")
 
     async def on_message(self, message):
-        if (message.content[0] == '!') and not message.author.bot:
+        if (len(message.content) != 0) and (message.content[0] == '!') and not message.author.bot:
             # Check for sneaky
             cmds = message.content[1:].split(" ")
             if "-sneaky" in cmds:
