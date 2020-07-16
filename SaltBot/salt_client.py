@@ -5,15 +5,23 @@ from player import Player
 
 players = {}
 
+IS_DEBUGGING = False
+
 UNKNOWN_CMD = [ "Kæmpe spurgt", "Wat?", "A hva?", "Den skal jeg sgu lige have igen", "Jaj ik fostå" ]
 
 class SaltClient(discord.Client):
     async def on_ready(self):
-        await self.change_presence(status=discord.Status.idle, activity=discord.Game("with piles of salt"))
-        #print("Ready!")
+        if IS_DEBUGGING:
+            await self.change_presence(status=discord.Status.dnd, activity=discord.Game("absolutely nothing"))
+        else:
+            await self.change_presence(status=discord.Status.online, activity=discord.Game("with piles of salt"))
+        print("Ready!")
 
     async def on_message(self, message):
         if (len(message.content) != 0) and (message.content[0] == '!') and not message.author.bot:
+            if IS_DEBUGGING and message.guild.name != "Min Test Server":
+                await message.channel.send("Sorry my dude, I'm currently under construction, I'll hopefully be back in a jiffy")
+                return
             # Check for sneaky
             cmds = message.content[1:].split(" ")
             if "-sneaky" in cmds:
