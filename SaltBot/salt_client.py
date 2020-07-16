@@ -10,7 +10,7 @@ UNKNOWN_CMD = [ "Kæmpe spurgt", "Wat?", "A hva?", "Den skal jeg sgu lige have i
 class SaltClient(discord.Client):
     async def on_ready(self):
         await self.change_presence(status=discord.Status.idle, activity=discord.Game("with piles of salt"))
-        print("Ready!")
+        #print("Ready!")
 
     async def on_message(self, message):
         if (len(message.content) != 0) and (message.content[0] == '!') and not message.author.bot:
@@ -42,8 +42,8 @@ class SaltClient(discord.Client):
                     await players[message.guild.name].channel.disconnect()
                     players[message.guild.name].clear_queue()
                     players.pop(message.guild.name)
-                    print(" " * 500, end='\r')
-                    print(", ".join(players), end='\r')
+                    #print(" " * 500, end='\r')
+                    #print(", ".join(players), end='\r')
                 else:
                     await message.channel.send("I'm not even in a channel")
 
