@@ -43,7 +43,15 @@ class SaltClient(discord.Client):
                 players[message.guild.name].add_to_queue(cmd, None)
 
             elif cmd == "help":
-                await message.channel.send("{} is a big dumb baby".format(message.author.name))
+                files = os.listdir('./sound_bytes/memes')
+                files = [x[:-4] for x in files if x[-4:] == '.mp3']
+                mes = 'Here are the currently available commands:\n\t!help - Shows this help message\n\t!skrid - Disconnects SaltBot from voice channel\n\t!leave - Disconnects SaltBot from voice channel'
+                mes += '\n\nVoice commands:'
+                for f in files:
+                    mes += '\n\t!%s' % f
+                await message.channel.send(mes)
+
+                #await message.channel.send("{} is a big dumb baby".format(message.author.name))
 
             elif cmd == "skrid" or cmd == "leave":
                 if message.guild.name in players:
