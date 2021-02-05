@@ -3,14 +3,17 @@
 # Kill background processes on exit
 trap "kill 0" EXIT
 
+# Set working directory
+cd SaltBot
+
 # Function for starting server and saving PID
 START_SERVER() {
 	# Start server
-	python3 SaltBot/main.py &
+	python3 main.py &
 
 	# Get server PID
 	SERVER_PID=$(ps aux |
-		grep "python3 SaltBot/main.py" |
+		grep "python3 main.py" |
 		grep -oP "^.*?\K\d+" |
 		head -1)
 }
