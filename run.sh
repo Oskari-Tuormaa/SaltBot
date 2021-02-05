@@ -26,12 +26,12 @@ while sleep $1; do
 	# Pull repo, and set PULLED to reflect whether we pulled or not
 	[[ -z "$(git pull | grep 'up to date')" ]] && PULLED=1 || PULLED=0
 
-	if [[ PULLED == 1 ]]; then
+	if [[ PULLED -eq 1 ]]; then
 		# Kill server
 		kill $SERVER_PID
 
 		# Normalize memes
-		bash SaltBot/sound_bytes/normalize_memes.sh
+		bash sound_bytes/normalize_memes.sh
 
 		# Start server again
 		START_SERVER
