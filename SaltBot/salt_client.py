@@ -27,7 +27,47 @@ class SaltClient(discord.Client):
                 status=discord.Status.online,
                 activity=discord.Game("with piles of salt"),
             )
+        await self.check_new_mp3s()
         print("Ready!")
+
+    async def check_new_mp3s(self):
+        files_in_raw = set(
+            filter(lambda x: x.endswith(".mp3"), os.listdir("sound_bytes/memes_raw"))
+        )
+        files_in_norm = set(
+            filter(lambda x: x.endswith(".mp3"), os.listdir("sound_bytes/memes"))
+        )
+
+        # If there's a difference between raw and normalized
+        if len(files_in_norm.symmetric_difference(files_in_raw)) != 0:
+            # Remove all normalized mp3s
+            for f in files_in_norm:
+                f_path = os.path.join("sound_bytes/memes", f)
+                os.remove(f_path)
+
+            # Run normalization
+            os.system("sound_bytes/normalize_memes.sh")
+
+            # Update saltbot-help channels
+            for guild in self.guilds:
+                for channel in guild.channels:
+                    if channel.name == "saltbot-help":
+                        await channel.purge()
+                        new_com = [
+                            x[:-4] for x in files_in_raw.difference(files_in_norm)
+                        ]
+                        if len(new_com) != 0:
+                            await channel.send(
+                                "New commands:\n" + ", ".join(new_com) + "\n\n"
+                            )
+                        old_com = [
+                            x[:-4] for x in files_in_norm.difference(files_in_raw)
+                        ]
+                        if len(old_com) != 0:
+                            await channel.send(
+                                "Commands deleted:\n" + ", ".join(old_com) + "\n\n"
+                            )
+                        await self.print_help(channel)
 
     async def on_message(self, message):
         if (
@@ -48,6 +88,16 @@ class SaltClient(discord.Client):
 
             await self.dispatcher(cmds, message)
 
+    async def print_help(self, channel):
+        files = os.listdir("./sound_bytes/memes")
+        files = [x[:-4] for x in files if x[-4:] == ".mp3"]
+        files.sort()
+        mes = "Here are the currently available commands:\n\t!help - Shows this help message\n\t!skrid - Disconnects SaltBot from voice channel\n\t!leave - Disconnects SaltBot from voice channel"
+        mes += "\n\nVoice commands:"
+        for f in files:
+            mes += "\n\t!%s" % f
+        await channel.send(mes)
+
     async def dispatcher(self, cmds, message):
         for cmd in cmds:
             if os.path.isfile(f"./sound_bytes/memes/{cmd}.mp3"):
@@ -66,14 +116,7 @@ class SaltClient(discord.Client):
                 players[message.guild.name].add_to_queue(cmd, None)
 
             elif cmd == "help":
-                files = os.listdir("./sound_bytes/memes")
-                files = [x[:-4] for x in files if x[-4:] == ".mp3"]
-                mes = "Here are the currently available commands:\n\t!help - Shows this help message\n\t!skrid - Disconnects SaltBot from voice channel\n\t!leave - Disconnects SaltBot from voice channel"
-                mes += "\n\nVoice commands:"
-                for f in files:
-                    mes += "\n\t!%s" % f
-                await message.channel.send(mes)
-
+                await self.print_help(message.channel)
                 # await message.channel.send("{} is a big dumb baby".format(message.author.name))
 
             elif cmd == "skrid" or cmd == "leave":

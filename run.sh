@@ -39,7 +39,7 @@ CHECK_NORMALIZE_MEMES() {
 }
 
 # Check normalize memes
-CHECK_NORMALIZE_MEMES
+# CHECK_NORMALIZE_MEMES
 
 # Initial startup of server
 START_SERVER
@@ -54,7 +54,7 @@ while sleep $1; do
 		kill $SERVER_PID
 
 		# Normalize memes
-		CHECK_NORMALIZE_MEMES
+		# CHECK_NORMALIZE_MEMES
 
 		# Start server again
 		START_SERVER
