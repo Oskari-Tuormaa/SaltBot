@@ -1,4 +1,5 @@
 import os
+import math
 import discord
 import random
 from player import Player
@@ -28,6 +29,7 @@ class SaltClient(discord.Client):
                 activity=discord.Game("with piles of salt"),
             )
         await self.check_new_mp3s()
+
         print("Ready!")
 
     async def check_new_mp3s(self):
@@ -40,39 +42,48 @@ class SaltClient(discord.Client):
 
         # If there's a difference between raw and normalized
         if len(files_in_norm.symmetric_difference(files_in_raw)) != 0:
+            new_com = [x for x in files_in_raw.difference(files_in_norm)]
+            old_com = [x for x in files_in_norm.difference(files_in_raw)]
+
             # Remove all normalized mp3s
-            for f in files_in_norm:
+            for f in old_com:
                 f_path = os.path.join("sound_bytes/memes", f)
                 os.remove(f_path)
 
             # Run normalization
-            os.system("sound_bytes/normalize_memes.sh")
+            os.system(f"sound_bytes/normalize_memes.sh {' '.join(new_com)}")
 
             # Update saltbot-help channels
             for guild in self.guilds:
                 for channel in guild.channels:
                     if channel.name == "saltbot-help":
                         await channel.purge()
-                        new_com = [
-                            x[:-4] for x in files_in_raw.difference(files_in_norm)
-                        ]
                         if len(new_com) != 0:
-                            await channel.send(
-                                "New commands:\n" + ", ".join(new_com) + "\n\n"
+                            new_com_embed = discord.Embed(
+                                title="New commands:",
+                                description=", ".join([x[:-4] for x in new_com]),
+                                colour=discord.Colour.gold(),
                             )
-                        old_com = [
-                            x[:-4] for x in files_in_norm.difference(files_in_raw)
-                        ]
+                            await channel.send(embed=new_com_embed)
                         if len(old_com) != 0:
-                            await channel.send(
-                                "Commands deleted:\n" + ", ".join(old_com) + "\n\n"
+                            old_com_embed = discord.Embed(
+                                title="Commands deleted:",
+                                description=", ".join([x[:-4] for x in old_com]),
+                                colour=discord.Colour.red(),
                             )
+                            await channel.send(old_com_embed)
                         await self.print_help(channel)
 
     async def on_message(self, message):
         if (
             (len(message.content) != 0)
-            and (message.content[0] == "!")
+            and (
+                message.content[0] == "!"
+                or (
+                    message.channel.name == "saltbot-help"
+                    and message.content not in ["help", "!help"]
+                )
+            )
             and not message.author.bot
         ):
             if IS_DEBUGGING and message.guild.name != "Min Test Server":
@@ -80,6 +91,10 @@ class SaltClient(discord.Client):
                     "Sorry my dude, I'm currently under construction, I'll hopefully be back in a jiffy"
                 )
                 return
+
+            if message.channel.name == "saltbot-help":
+                message.content = "!" + message.content
+
             # Check for sneaky
             cmds = message.content[1:].split(" ")
             if "-sneaky" in cmds:
@@ -88,15 +103,42 @@ class SaltClient(discord.Client):
 
             await self.dispatcher(cmds, message)
 
+        if message.channel.name == "saltbot-help" and message.author != self.user:
+            await message.delete()
+
     async def print_help(self, channel):
         files = os.listdir("./sound_bytes/memes")
         files = [x[:-4] for x in files if x[-4:] == ".mp3"]
         files.sort()
-        mes = "Here are the currently available commands:\n\t!help - Shows this help message\n\t!skrid - Disconnects SaltBot from voice channel\n\t!leave - Disconnects SaltBot from voice channel"
-        mes += "\n\nVoice commands:"
-        for f in files:
-            mes += "\n\t!%s" % f
-        await channel.send(mes)
+        command_mes = discord.Embed(
+            title="Commands:",
+            description="!help - Shows this help message\n!skrid - Disconnects SaltBot from voice channel\n!leave - Disconnects SaltBot from voice channel",
+        )
+        await channel.send(embed=command_mes)
+        voice_command_mes = discord.Embed(title="Voice commands:", description="")
+
+        num_col = 3
+        num_row = math.ceil(len(files) / num_col)
+        per = (int)(len(files) / num_col)
+        cols = []
+        temp_point = 0
+        for i in range(num_col):
+            col_len = per if i >= (len(files) % num_col) else per + 1
+            cols.append(files[temp_point : temp_point + col_len])
+            temp_point += col_len
+
+        voice_command_mes.description += "```\n"
+        for i in range(num_row):
+            mes = ""
+            for j in range(num_col):
+                if j != num_col - 1:
+                    mes += cols[j][i].ljust(20, " ")
+                else:
+                    mes += cols[j][i]
+            voice_command_mes.description += mes + "\n"
+        voice_command_mes.description += "```"
+
+        await channel.send(embed=voice_command_mes)
 
     async def dispatcher(self, cmds, message):
         for cmd in cmds:
@@ -117,15 +159,12 @@ class SaltClient(discord.Client):
 
             elif cmd == "help":
                 await self.print_help(message.channel)
-                # await message.channel.send("{} is a big dumb baby".format(message.author.name))
 
             elif cmd == "skrid" or cmd == "leave":
                 if message.guild.name in players:
                     await players[message.guild.name].channel.disconnect()
                     players[message.guild.name].clear_queue()
                     players.pop(message.guild.name)
-                    # print(" " * 500, end='\r')
-                    # print(", ".join(players), end='\r')
                 else:
                     await message.channel.send("I'm not even in a channel")
 
