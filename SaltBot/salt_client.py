@@ -28,6 +28,7 @@ class SaltClient(discord.Client):
                 status=discord.Status.online,
                 activity=discord.Game("with piles of salt"),
             )
+
         await self.check_new_mp3s()
 
         print("Ready!")
@@ -40,6 +41,8 @@ class SaltClient(discord.Client):
             filter(lambda x: x.endswith(".mp3"), os.listdir("sound_bytes/memes"))
         )
 
+        new_com = []
+        old_com = []
         # If there's a difference between raw and normalized
         if len(files_in_norm.symmetric_difference(files_in_raw)) != 0:
             new_com = [x for x in files_in_raw.difference(files_in_norm)]
@@ -53,26 +56,26 @@ class SaltClient(discord.Client):
             # Run normalization
             os.system(f"sound_bytes/normalize_memes.sh {' '.join(new_com)}")
 
-            # Update saltbot-help channels
-            for guild in self.guilds:
-                for channel in guild.channels:
-                    if channel.name == "saltbot-help":
-                        await channel.purge()
-                        if len(new_com) != 0:
-                            new_com_embed = discord.Embed(
-                                title="New commands:",
-                                description=", ".join([x[:-4] for x in new_com]),
-                                colour=discord.Colour.gold(),
-                            )
-                            await channel.send(embed=new_com_embed)
-                        if len(old_com) != 0:
-                            old_com_embed = discord.Embed(
-                                title="Commands deleted:",
-                                description=", ".join([x[:-4] for x in old_com]),
-                                colour=discord.Colour.red(),
-                            )
-                            await channel.send(old_com_embed)
-                        await self.print_help(channel)
+        # Update saltbot-help channels
+        for guild in self.guilds:
+            for channel in guild.channels:
+                if channel.name == "saltbot-help":
+                    await channel.purge()
+                    if len(new_com) != 0:
+                        new_com_embed = discord.Embed(
+                            title="New commands:",
+                            description=", ".join([x[:-4] for x in new_com]),
+                            colour=discord.Colour.gold(),
+                        )
+                        await channel.send(embed=new_com_embed)
+                    if len(old_com) != 0:
+                        old_com_embed = discord.Embed(
+                            title="Commands deleted:",
+                            description=", ".join([x[:-4] for x in old_com]),
+                            colour=discord.Colour.red(),
+                        )
+                        await channel.send(old_com_embed)
+                    await self.print_help(channel)
 
     async def on_message(self, message):
         if (
@@ -117,7 +120,7 @@ class SaltClient(discord.Client):
         await channel.send(embed=command_mes)
         voice_command_mes = discord.Embed(title="Voice commands:", description="")
 
-        num_col = 3
+        num_col = 2
         num_row = math.ceil(len(files) / num_col)
         per = (int)(len(files) / num_col)
         cols = []
@@ -130,7 +133,7 @@ class SaltClient(discord.Client):
         voice_command_mes.description += "```\n"
         for i in range(num_row):
             mes = ""
-            for j in range(num_col):
+            for j in range(num_col if i != num_row - 1 else len(files) % num_col):
                 if j != num_col - 1:
                     mes += cols[j][i].ljust(20, " ")
                 else:
