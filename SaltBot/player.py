@@ -5,6 +5,7 @@ import asyncio
 
 global players
 
+
 class Player:
     channel = None
     queue = None
@@ -21,8 +22,8 @@ class Player:
         self.loop = loop
 
     def connected(self, future):
-        #print(" " * 500, end='\r')
-        #print(", ".join(self.players), end='\r')
+        # print(" " * 500, end='\r')
+        # print(", ".join(self.players), end='\r')
         self.channel = future.result()
         self.check_queue()
 
@@ -31,7 +32,11 @@ class Player:
 
     def add_to_queue(self, cmd, *args):
         self.queue.append((cmd, *args))
-        if len(self.queue) == 1 and self.connectionTask.done() and not self.channel.is_playing():
+        if (
+            len(self.queue) == 1
+            and self.connectionTask.done()
+            and not self.channel.is_playing()
+        ):
             self.check_queue()
 
     def play_mp3(self, path):
@@ -47,7 +52,7 @@ class Player:
 
         if len(self.queue) != 0:
             cmd, args = self.queue.popleft()
-            self.play_mp3(f'./sound_bytes/memes/{cmd}.mp3')
+            self.play_mp3(f"./sound_bytes/memes/{cmd}.mp3")
 
         elif len(self.queue) == 0:
             self.loop.create_task(self.leave_channel())
@@ -56,6 +61,5 @@ class Player:
         if self.channel.guild.name in self.players:
             await self.channel.disconnect()
             self.players.pop(self.channel.guild.name)
-            #print(" " * 500, end='\r')
-            #print(", ".join(self.players), end='\r')
-
+            # print(" " * 500, end='\r')
+            # print(", ".join(self.players), end='\r')
