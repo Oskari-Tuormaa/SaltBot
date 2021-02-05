@@ -32,10 +32,10 @@ START_SERVER() {
 }
 
 CHECK_NORMALIZE_MEMES() {
-	[[ -n "$(diff -q sound_bytes/memes sound_bytes/memes_raw | grep 'Only in')" ]] &&
-		echo "New files" &&
-		rm sound_bytes/memes/*.mp3 &&
+	if [[ -n "$(diff -q sound_bytes/memes sound_bytes/memes_raw | grep 'Only in')" ]]; then
+		rm sound_bytes/memes/*.mp3
 		bash sound_bytes/normalize_memes.sh
+	fi
 }
 
 # Check normalize memes
