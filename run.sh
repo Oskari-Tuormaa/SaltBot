@@ -1,5 +1,18 @@
 #!/bin/bash
 
+# /-/-/-/-/-/-/-/-/-/-
+#
+# This script starts the bot,
+# and checks for updates on git
+# at each time interval specified.
+#
+# The script will automatically
+# pull, restart the server and
+# normalize memes if new commits
+# are added.
+#
+# /-/-/-/-/-/-/-/-/-/-
+
 # Kill background processes on exit
 trap "kill 0" EXIT
 
@@ -18,6 +31,16 @@ START_SERVER() {
 		head -1)
 }
 
+CHECK_NORMALIZE_MEMES() {
+	[[ -n "$(diff -q sound_bytes/memes sound_bytes/memes_raw | grep 'Only in')" ]] &&
+		echo "New files" &&
+		rm sound_bytes/memes/*.mp3 &&
+		bash sound_bytes/normalize_memes.sh
+}
+
+# Check normalize memes
+CHECK_NORMALIZE_MEMES
+
 # Initial startup of server
 START_SERVER
 
@@ -31,7 +54,7 @@ while sleep $1; do
 		kill $SERVER_PID
 
 		# Normalize memes
-		bash sound_bytes/normalize_memes.sh
+		CHECK_NORMALIZE_MEMES
 
 		# Start server again
 		START_SERVER
