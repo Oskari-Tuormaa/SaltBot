@@ -102,7 +102,7 @@ class SaltClient(discord.Client):
         for cmd in cmds:
             if os.path.isfile(f"./sound_bytes/memes/{cmd}.mp3"):
                 if message.author.voice == None:
-                    await message.channel.send("You're not in a channel")
+                    # await message.channel.send("You're not in a channel")
                     return
 
                 if (
@@ -129,7 +129,7 @@ class SaltClient(discord.Client):
                 else:
                     await message.channel.send("I'm not even in a channel")
 
-            else:
-                await message.channel.send(
-                    "{}: {}".format(cmd, random.choice(UNKNOWN_CMD))
-                )
+            # else:
+            #     await message.channel.send(
+            #         "{}: {}".format(cmd, random.choice(UNKNOWN_CMD))
+            #     )
