@@ -54,7 +54,8 @@ class SaltClient(discord.Client):
                 os.remove(f_path)
 
             # Run normalization
-            os.system(f"sound_bytes/normalize_memes.sh {' '.join(new_com)}")
+            if len(new_com) != 0:
+                os.system(f"sound_bytes/normalize_memes.sh {' '.join(new_com)}")
 
         # Update saltbot-help channels
         for guild in self.guilds:
@@ -74,7 +75,7 @@ class SaltClient(discord.Client):
                             description=", ".join([x[:-4] for x in old_com]),
                             colour=discord.Colour.red(),
                         )
-                        await channel.send(old_com_embed)
+                        await channel.send(embed=old_com_embed)
                     await self.print_help(channel)
 
     async def on_message(self, message):
