@@ -20,16 +20,13 @@ UNKNOWN_CMD = [
 
 class SaltClient(discord.Client):
     async def on_ready(self):
-        if IS_DEBUGGING:
-            await self.change_presence(
-                status=discord.Status.dnd, activity=discord.Game("absolutely nothing")
-            )
-        else:
-            await self.change_presence(
-                status=discord.Status.online,
-                activity=discord.Game("with piles of salt"),
-            )
+        # Set presence
+        await self.change_presence(
+            status=discord.Status.online,
+            activity=discord.Game("with piles of salt"),
+        )
 
+        # Check changes in mp3s
         await self.check_new_mp3s()
 
         # Start FonkyMonkey routine
@@ -38,6 +35,7 @@ class SaltClient(discord.Client):
         print("Ready!")
 
     async def check_new_mp3s(self):
+        # Get sets with all mp3s in raw and normalized directories
         files_in_raw = set(
             filter(lambda x: x.endswith(".mp3"), os.listdir("sound_bytes/memes_raw"))
         )
@@ -49,6 +47,7 @@ class SaltClient(discord.Client):
         old_com = []
         # If there's a difference between raw and normalized
         if len(files_in_norm.symmetric_difference(files_in_raw)) != 0:
+            # Get unique files in each directory
             new_com = [x for x in files_in_raw.difference(files_in_norm)]
             old_com = [x for x in files_in_norm.difference(files_in_raw)]
 
@@ -63,9 +62,12 @@ class SaltClient(discord.Client):
 
         # Update saltbot-help channels
         for guild in self.guilds:
-            for channel in guild.channels:
+            for channel in guild.text_channels:
                 if channel.name == "saltbot-help":
+                    # Remove all messages in channel
                     await channel.purge()
+
+                    # If there are new commands
                     if len(new_com) != 0:
                         new_com_embed = discord.Embed(
                             title="New commands:",
@@ -73,6 +75,7 @@ class SaltClient(discord.Client):
                             colour=discord.Colour.gold(),
                         )
                         await channel.send(embed=new_com_embed)
+                    # If there are commands that no longer exist
                     if len(old_com) != 0:
                         old_com_embed = discord.Embed(
                             title="Commands deleted:",
@@ -80,54 +83,65 @@ class SaltClient(discord.Client):
                             colour=discord.Colour.red(),
                         )
                         await channel.send(embed=old_com_embed)
+
+                    # Send help message
                     await self.print_help(channel)
 
     async def on_message(self, message):
-        if (
-            (len(message.content) != 0)
-            and (
-                message.content[0] == "!"
-                or (
-                    message.channel.name == "saltbot-help"
-                    and message.content not in ["help", "!help"]
-                )
-            )
-            and not message.author.bot
-        ):
-            if IS_DEBUGGING and message.guild.name != "Min Test Server":
-                await message.channel.send(
-                    "Sorry my dude, I'm currently under construction, I'll hopefully be back in a jiffy"
-                )
-                return
+        # If message was not sent by bot, and message is not empty
+        if len(message.content) != 0 and not message.author.bot:
+            # Strip message of leading and trailing whitespace
+            message.content = message.content.strip()
 
-            if message.channel.name == "saltbot-help":
-                message.content = "!" + message.content
+            # Parse commands
+            await self.parse_command(message)
 
-            # Check for sneaky
-            cmds = message.content[1:].split(" ")
-            if "-sneaky" in cmds:
-                cmds.remove("-sneaky")
-                await message.delete()
-
-            await self.dispatcher(cmds, message)
-
+        # If message was sent in help channel, and not by this bot, delete the message
         if message.channel.name == "saltbot-help" and message.author != self.user:
             await message.delete()
 
+    async def parse_command(self, message):
+        # If message was sent in saltbot channel, append !
+        if message.channel.name == "saltbot-help" and not message.content.startswith(
+            "!"
+        ):
+            message.content = "!" + message.content
+
+        # Split message into commands
+        cmds = message.content[1:].split(" ")
+
+        # Delete message if -sneaky
+        if "-sneaky" in cmds:
+            cmds.remove("-sneaky")
+            await message.delete()
+
+        # Call dispatcher
+        await self.dispatcher(cmds, message)
+
     async def print_help(self, channel):
+        # Get all files in sound bytes directory
         files = os.listdir("./sound_bytes/memes")
+
+        # Filter out non mp3 files, and remove .mp3 from names
         files = [x[:-4] for x in files if x[-4:] == ".mp3"]
-        files.sort()
+        files.sort()  # Sort for alphabetical order
+
+        # Create and send commands embed
         command_mes = discord.Embed(
             title="Commands:",
             description="!help - Shows this help message\n!skrid - Disconnects SaltBot from voice channel\n!leave - Disconnects SaltBot from voice channel",
         )
         await channel.send(embed=command_mes)
+
+        # Create voice commands embed
         voice_command_mes = discord.Embed(title="Voice commands:", description="")
 
+        # Set and calculate numbers for voice commands table
         num_col = 2
         num_row = math.ceil(len(files) / num_col)
         per = (int)(len(files) / num_col)
+
+        # Create voice commands table
         cols = []
         temp_point = 0
         for i in range(num_col):
@@ -135,6 +149,7 @@ class SaltClient(discord.Client):
             cols.append(files[temp_point : temp_point + col_len])
             temp_point += col_len
 
+        # Add voice commands table to embed
         voice_command_mes.description += "```\n"
         for i in range(num_row):
             mes = ""
@@ -146,15 +161,19 @@ class SaltClient(discord.Client):
             voice_command_mes.description += mes + "\n"
         voice_command_mes.description += "```"
 
+        # Send voice commands embed
         await channel.send(embed=voice_command_mes)
 
     async def dispatcher(self, cmds, message):
+        # Loop through commands
         for cmd in cmds:
+            # If command matches soundbyte filename
             if os.path.isfile(f"./sound_bytes/memes/{cmd}.mp3"):
                 if message.author.voice == None:
                     # await message.channel.send("You're not in a channel")
                     return
 
+                # Create player if none exists for guild
                 if (
                     message.guild.name not in players
                     or players[message.guild.name] == None
@@ -163,6 +182,7 @@ class SaltClient(discord.Client):
                         message.author.voice.channel, players, self.loop
                     )
 
+                # Add this soundbyte to the current queue
                 players[message.guild.name].add_to_queue(cmd, None)
 
             elif cmd == "help":
@@ -174,7 +194,8 @@ class SaltClient(discord.Client):
                     players[message.guild.name].clear_queue()
                     players.pop(message.guild.name)
                 else:
-                    await message.channel.send("I'm not even in a channel")
+                    ...
+                    # await message.channel.send("I'm not even in a channel")
 
             # else:
             #     await message.channel.send(
