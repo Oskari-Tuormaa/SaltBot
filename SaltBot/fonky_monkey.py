@@ -4,6 +4,14 @@ import threading
 
 
 class FonkyMonkey:
+    """Class for handling posting a very fonky link each friday
+
+    Args:
+        guilds: List of guilds to post the link to
+        loop: Current asyncio event loop
+
+    """
+
     guilds = []
     check_delay = 10
     has_sent = False
@@ -17,10 +25,25 @@ class FonkyMonkey:
         thread.start()
 
     def startup(self, loop: asyncio.SelectorEventLoop):
+        """Sets the current event loop and creates parallel task
+
+        Args:
+            loop: Current asyncio event loop
+
+        Returns:
+            None
+
+        """
         asyncio.set_event_loop(loop)
         loop.create_task(self.sleep_then_check())
 
     async def sleep_then_check(self):
+        """Sleeps for the specified amount of time before calling self.check in an infinite loop
+
+        Returns:
+            None
+
+        """
         await self.initial_check()
         await self.check()
         while True:
@@ -28,6 +51,12 @@ class FonkyMonkey:
             await self.check()
 
     async def initial_check(self):
+        """Does an initial check of whether this bot has posted the fonky link today
+
+        Returns:
+            None
+
+        """
         for guild in self.guilds:
             channel = guild.text_channels[0]
             dt = datetime.datetime.now()
@@ -40,6 +69,12 @@ class FonkyMonkey:
                 break
 
     async def check(self):
+        """Checks whether the fonky link should be posted or not
+
+        Returns:
+            None
+
+        """
         dt = datetime.datetime.today()
 
         if self.has_sent:
@@ -51,6 +86,11 @@ class FonkyMonkey:
                 self.has_sent = True
 
     async def send_fonky(self):
-        for guild in self.guilds:
+        """Sends the fonky link to the first channel in each guild
 
+        Returns:
+            None
+
+        """
+        for guild in self.guilds:
             await guild.text_channels[0].send(self.fonky_url)

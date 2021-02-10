@@ -5,6 +5,8 @@ import random
 from player import Player
 from fonky_monkey import FonkyMonkey
 
+from typing import List
+
 players = {}
 
 IS_DEBUGGING = False
@@ -20,6 +22,8 @@ UNKNOWN_CMD = [
 
 class SaltClient(discord.Client):
     async def on_ready(self):
+        """ Called when bot is initialized """
+
         # Set presence
         await self.change_presence(
             status=discord.Status.online,
@@ -35,6 +39,12 @@ class SaltClient(discord.Client):
         print("Ready!")
 
     async def check_new_mp3s(self):
+        """Checks for new sound bytes and updates saltbot-help channels in each guild
+
+        Returns:
+            None
+
+        """
         # Get sets with all mp3s in raw and normalized directories
         files_in_raw = set(
             filter(lambda x: x.endswith(".mp3"), os.listdir("sound_bytes/memes_raw"))
@@ -87,7 +97,9 @@ class SaltClient(discord.Client):
                     # Send help message
                     await self.print_help(channel)
 
-    async def on_message(self, message):
+    async def on_message(self, message: discord.Message):
+        """ Called when message is sent in any channel """
+
         # If message was not sent by bot, and message is not empty
         if len(message.content) != 0 and not message.author.bot:
             # Strip message of leading and trailing whitespace
@@ -100,7 +112,17 @@ class SaltClient(discord.Client):
         if message.channel.name == "saltbot-help" and message.author != self.user:
             await message.delete()
 
-    async def parse_command(self, message):
+    async def parse_command(self, message: discord.Message):
+        """Parses commands in message and calls dispatcher
+
+        Args:
+            message: Message containing commands to parse
+
+        Returns:
+            None
+
+        """
+
         # If message was sent in saltbot channel, append !
         if message.channel.name == "saltbot-help" and not message.content.startswith(
             "!"
@@ -118,7 +140,17 @@ class SaltClient(discord.Client):
         # Call dispatcher
         await self.dispatcher(cmds, message)
 
-    async def print_help(self, channel):
+    async def print_help(self, channel: discord.TextChannel):
+        """Prints help message in channel
+
+        Args:
+            channel: Channel to send help message to
+
+        Returns:
+            None
+
+        """
+
         # Get all files in sound bytes directory
         files = os.listdir("./sound_bytes/memes")
 
@@ -164,7 +196,18 @@ class SaltClient(discord.Client):
         # Send voice commands embed
         await channel.send(embed=voice_command_mes)
 
-    async def dispatcher(self, cmds, message):
+    async def dispatcher(self, cmds: List[str], message: discord.Message):
+        """Sequentially executes each command in cmds
+
+        Args:
+            cmds: List of commands to execute
+            message: Message from which commands are received
+
+        Returns:
+            None
+
+        """
+
         # Loop through commands
         for cmd in cmds:
             # If command matches soundbyte filename
