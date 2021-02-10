@@ -3,6 +3,7 @@ import math
 import discord
 import random
 from player import Player
+from fonky_monkey import FonkyMonkey
 
 players = {}
 
@@ -30,6 +31,9 @@ class SaltClient(discord.Client):
             )
 
         await self.check_new_mp3s()
+
+        # Start FonkyMonkey routine
+        self.fonky_monkey = FonkyMonkey(self.guilds, self.loop)
 
         print("Ready!")
 
