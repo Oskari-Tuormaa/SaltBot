@@ -1,3 +1,4 @@
+import discord
 import datetime
 import asyncio
 import threading
@@ -15,7 +16,7 @@ class FonkyMonkey:
     guilds = []
     check_delay = 10
     has_sent = False
-    fonky_url = "https://www.youtube.com/watch?v=nxoe5DjDd74"
+    fonky_path = "videos/fonkymonkey.mp4"
 
     def __init__(self, guilds, loop: asyncio.SelectorEventLoop):
         self.guilds = guilds
@@ -57,16 +58,16 @@ class FonkyMonkey:
             None
 
         """
+        dt = datetime.datetime.now()
+        dt = dt.replace(hour=0, minute=0, second=0)
         for guild in self.guilds:
-            channel = guild.text_channels[0]
-            dt = datetime.datetime.now()
-            dt = dt.replace(hour=0, minute=0, second=0)
-            async for message in channel.history(after=dt):
-                if message.author.bot and message.content == self.fonky_url:
-                    self.has_sent = True
-                    break
-            if self.has_sent == True:
-                break
+            for channel in guild.text_channels:
+                async for message in channel.history(after=dt):
+                    if message.author.bot:
+                        for attachment in message.attachments:
+                            if attachment.filename == "videos_fonkymonkey.mp4":
+                                self.has_sent = True
+                                return
 
     async def check(self):
         """Checks whether the fonky link should be posted or not
@@ -81,7 +82,7 @@ class FonkyMonkey:
             if dt.weekday() == 0:  # If monday
                 self.has_sent = False
         else:
-            if dt.weekday() == 4 and dt.hour > 12:  # Friday past 12
+            if dt.weekday() == 4 and dt.hour >= 12:  # Friday past 12
                 await self.send_fonky()
                 self.has_sent = True
 
@@ -93,4 +94,10 @@ class FonkyMonkey:
 
         """
         for guild in self.guilds:
-            await guild.text_channels[0].send(self.fonky_url)
+            for channel in guild.text_channels:
+                if channel.name == "saltbot-help":
+                    continue
+                with open(self.fonky_path, "rb") as fd:
+                    fonk = discord.File(fd)
+                    await channel.send(file=fonk)
+                    break
