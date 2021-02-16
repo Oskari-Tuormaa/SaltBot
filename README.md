@@ -9,6 +9,11 @@ The ![run.sh](https://github.com/Oskari-Tuormaa/SaltBot/blob/master/run.sh) scri
 ## TODO
 
 - Add "bedetid.mp3" to randomly join and play audioclip
-- Allow saltbot-help to be renamed
 - Restructure command handling
-- Command to add soundclip to text channel
+- Add role system
+
+### New commands
+
+- Add soundclip to text channel
+- Play soundclip in specified voicechannel
+- Rename saltbot-help text channel
