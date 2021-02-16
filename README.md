@@ -11,6 +11,7 @@ The ![run.sh](https://github.com/Oskari-Tuormaa/SaltBot/blob/master/run.sh) scri
 - Add "bedetid.mp3" to randomly join and play audioclip
 - Restructure command handling
 - Add role system
+- Fix normalisation of sound bytes that already exist
 
 ### New commands
 
