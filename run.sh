@@ -13,6 +13,9 @@
 #
 # /-/-/-/-/-/-/-/-/-/-
 
+# Cd to script directory
+cd "$(dirname "$0")"
+
 # Kill background processes on exit
 trap "kill 0" EXIT
 
