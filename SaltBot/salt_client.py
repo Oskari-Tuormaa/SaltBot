@@ -128,6 +128,9 @@ class SaltClient(discord.Client):
             "!"
         ):
             message.content = "!" + message.content
+            
+        if message.content[0] != "!":
+            return
 
         # Split message into commands
         cmds = message.content[1:].split(" ")
