@@ -2,6 +2,8 @@ import discord
 from salt_client import SaltClient
 import asyncio
 import enum
+from metadata import get_metadata, get_sounds
+from sound_handler import SoundClip
 
 
 class DebugMode(enum.Enum):
@@ -10,32 +12,70 @@ class DebugMode(enum.Enum):
     LIVE = 3
 
 
-class DummyChannel:
-    def __init__(self):
-        ...
-
+class DummyTextChannel:
     async def send(self, mes: str):
         print(mes)
 
 
+class DummyVoiceClient:
+    def __init__(self):
+        self.connected = True
+
+    def is_connected(self):
+        return self.connected
+
+    def is_playing(self):
+        return False
+
+    async def disconnect(self):
+        print("Disconnecting!")
+        self.connected = False
+
+    def play(self, clip, after=None):
+        print("Playing", clip)
+        if after:
+            after(None)
+
+
+class DummyVoiceChannel:
+    async def connect(self):
+        print("Connecting to voice channel!")
+        return DummyVoiceClient()
+
+
+class DummyVoiceState:
+    def __init__(self, channel=DummyVoiceChannel()):
+        self.channel = channel
+
+
 class DummyUser:
-    def __init__(self, name="", bot=False):
+    def __init__(self, name="", bot=False, voice=DummyVoiceState()):
         self.name = name
         self.bot = bot
+        self.voice = voice
+
+
+class DummyGuild:
+    def __init__(self, id=0):
+        self.id = id
 
 
 class DummyMessage:
-    def __init__(self, content="", author=DummyUser(), channel=DummyChannel()):
+    def __init__(self, content="",
+                 author=DummyUser(),
+                 channel=DummyTextChannel(),
+                 guild=DummyGuild()):
         self.content = content
         self.author = author
         self.channel = channel
+        self.guild = guild
 
 
 def run_debugging():
     """ Runs various debugging commands. """
     client = SaltClient()
     messages = [
-        DummyMessage("!asciimath sqrt(2)"),
+        DummyMessage("!vcommands")
     ]
 
     asyncio.run(client.on_ready())

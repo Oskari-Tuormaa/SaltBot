@@ -1,6 +1,8 @@
 import discord
+import numpy as np
 import sympy as sp
 import re
+from metadata import get_sounds
 
 ALL_COMMANDS = dict()
 
@@ -19,7 +21,7 @@ def register_command(name: str):
 async def whatis(message: discord.Message, target: str):
     """`whatis [cmd]`
 
-    Prints docstring for [cmd]."""
+    Prints docstring for `[cmd]`."""
     if target in ALL_COMMANDS:
         doc = ALL_COMMANDS[target].__doc__
         if doc is not None:
@@ -33,11 +35,35 @@ async def commands(message: discord.Message):
     """`commands`
 
     Lists all commands."""
-    mes = "```"
+    mes = """Currently available commands:```"""
     for k in ALL_COMMANDS.keys():
         mes += k + "\n"
     mes += "```"
     await message.channel.send(mes)
+
+
+@register_command("vcommands")
+async def vcommands(message: discord.Message):
+    """`vcommands`
+
+    Lists all available voice commands"""
+    sounds = np.array([x.split(".mp3")[0] for x in get_sounds()], dtype=object)
+    sounds.sort()
+    ncols = 5
+
+    # Pad sound list
+    to_pad = ncols - (len(sounds) % ncols)
+    if to_pad != 1:
+        sounds = np.append(sounds, [""]*to_pad)
+
+    sounds = sounds.reshape((-1, ncols))
+
+    for idx in range(ncols-1):
+        max_len = max([len(x) for x in sounds.T[idx]]) + 3
+        sounds.T[idx] = [x.ljust(max_len) for x in sounds.T[idx]]
+
+    sounds = "\n".join(["".join(x) for x in sounds])
+    await message.channel.send("```"+sounds+"```")
 
 
 @register_command("test")
@@ -45,15 +71,16 @@ async def test(message: discord.Message):
     """`test`
 
     Simply writes "Test" in channel."""
-    print("Test")
+    await message.channel.send("Test")
 
 
 @register_command("echo")
-async def echo(message: discord.Message, params: str = "Nothing to echo :/"):
+async def echo(message: discord.Message, *params):
     """`echo [message]`
 
-    Echoes the message specified by [message]."""
-    await message.channel.send(params)
+    Echoes the message specified by `[message]`."""
+    if len(params) > 0:
+        await message.channel.send(" ".join(params))
 
 
 @register_command("hello")
@@ -64,11 +91,11 @@ async def hello(message: discord.Message):
     await message.channel.send(f"Hello {message.author.name}!")
 
 
-@register_command("purge")
+# @register_command("purge")
 async def purge_channel(message: discord.Message):
     """`purge`
 
-    > Deletes all messages in channel."""
+    Deletes all messages in channel."""
     await message.channel.purge()
 
 
@@ -76,9 +103,9 @@ async def purge_channel(message: discord.Message):
 async def asciimath(message: discord.Message, *expr):
     """`asciimath [expr]`
 
-    Evaluates [expr] using Sympy."""
+    Evaluates `[expr]` using `Sympy`."""
     expr = " ".join(expr)
-    words = set(re.findall(r"[^\d\s\(\)+*/\-,]+", expr))
+    words = set(re.findall(r"[^\d\s()+*/\-,]+", expr))
 
     for word in words:
         if word.startswith("'"):
