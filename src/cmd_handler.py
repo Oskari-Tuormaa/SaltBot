@@ -17,4 +17,5 @@ async def execute_commands(message: discord.Message):
         await play_sound_commands(message, cmd, *params)
         return
 
-    await ALL_COMMANDS[cmd](message, *params)
+    if cmd in ALL_COMMANDS:
+        await ALL_COMMANDS[cmd](message, *params)
