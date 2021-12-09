@@ -20,11 +20,10 @@ class Player:
 
     async def connect_to_vc(self, vc: discord.VoiceChannel):
         if self.vc and self.vc.is_connected():
-            pass
+            return
         self.vc = await vc.connect()
 
     async def add_to_queue(self, *params):
-        # Doesn't properly add to queue
         self.queue += params
         if (
                 len(self.queue) == len(params)
