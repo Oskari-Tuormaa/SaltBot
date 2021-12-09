@@ -22,9 +22,10 @@ def process_sound_commands(*cmds) -> List["SoundClip"]:
 async def play_sound_commands(message: discord.Message, *cmds: List[str]):
     cmds = filter_sound_commands(*cmds)
     cmds = process_sound_commands(*cmds)
-    guild_id = message.guild.id
 
+    guild_id = message.guild.id
     player = get_player(guild_id)
+
     await player.connect_to_vc(message.author.voice.channel)
     await player.add_to_queue(*cmds)
 
