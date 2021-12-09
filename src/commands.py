@@ -3,6 +3,7 @@ import numpy as np
 import sympy as sp
 import re
 from metadata import get_sounds
+from player import get_player
 
 ALL_COMMANDS = dict()
 
@@ -64,6 +65,17 @@ async def vcommands(message: discord.Message):
 
     sounds = "\n".join(["".join(x) for x in sounds])
     await message.channel.send("```"+sounds+"```")
+
+
+@register_command("leave")
+async def vc_leave(message: discord.Message):
+    """`leave`
+
+    Disconnects bot from voice channel."""
+    guild_id = message.guild.id
+    player = get_player(guild_id)
+
+    await player.disconnect()
 
 
 @register_command("test")

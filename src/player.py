@@ -23,6 +23,10 @@ class Player:
             return
         self.vc = await vc.connect()
 
+    async def disconnect(self):
+        if self.vc and self.vc.is_connected():
+            await self.vc.disconnect()
+
     async def add_to_queue(self, *params):
         self.queue += params
         if (
@@ -36,7 +40,7 @@ class Player:
             return
 
         if len(self.queue) == 0:
-            await self.vc.disconnect()
+            await self.disconnect()
             return
 
         clip = self.queue.pop(0)
