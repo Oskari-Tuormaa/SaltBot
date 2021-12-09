@@ -44,13 +44,14 @@ async def commands(message: discord.Message):
 
 
 @register_command("vcommands")
-async def vcommands(message: discord.Message):
-    """`vcommands`
+async def vcommands(message: discord.Message, ncols: int = 5):
+    """`vcommands [ncols]`
 
-    Lists all available voice commands"""
+    Lists all available voice commands. Amount of columns can be specified by `<ncols>`."""
     sounds = np.array([x.split(".mp3")[0] for x in get_sounds()], dtype=object)
     sounds.sort()
-    ncols = 5
+
+    ncols = int(ncols)
 
     # Pad sound list
     to_pad = ncols - (len(sounds) % ncols)
