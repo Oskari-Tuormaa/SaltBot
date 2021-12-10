@@ -1,5 +1,6 @@
 import discord
 import os
+from pathlib import Path
 from commands import ALL_COMMANDS
 from player import get_player
 from typing import List
@@ -32,12 +33,7 @@ async def play_sound_commands(message: discord.Message, *cmds: List[str]):
 
 class SoundClip:
     def __init__(self, cmd: str):
-        self.path = os.path.abspath(
-            os.path.join(
-                get_metadata().paths.sounds_normalized,
-                cmd + ".mp3"
-            )
-        )
+        self.path = Path(get_metadata().paths.sounds_normalized, cmd+".mp3").resolve()
 
     def source(self):
         return discord.FFmpegOpusAudio(self.path)
