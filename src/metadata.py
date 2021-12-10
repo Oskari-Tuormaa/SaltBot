@@ -18,10 +18,12 @@ class Metadata:
 
 
 def root_dir() -> pathlib.Path:
+    """Returns root directory"""
     return pathlib.Path(__file__).parent.parent
 
 
 def metadata_path() -> pathlib.Path:
+    """Returns path to metadata.yaml"""
     return pathlib.Path(root_dir(), "metadata.yaml")
 
 
@@ -32,7 +34,7 @@ def read_metadata() -> dict:
 
 
 def get_metadata() -> "Metadata":
-    """Returns """
+    """Returns populated `Metadata` object"""
     meta = read_metadata()
     return Metadata(
         Metadata.Paths(
@@ -44,5 +46,6 @@ def get_metadata() -> "Metadata":
 
 
 def get_sounds() -> List[str]:
+    """Returns list of all sound commands"""
     meta = get_metadata()
     return os.listdir(meta.paths.sounds_normalized)

@@ -8,6 +8,7 @@ ALL_PLAYERS: Dict[int, "Player"] = dict()
 
 
 def get_player(guild_id: int) -> "Player":
+    """Returns `Player` associated with guild. Creates new `Player` object if none exists"""
     if guild_id not in ALL_PLAYERS:
         ALL_PLAYERS[guild_id] = Player()
     return ALL_PLAYERS[guild_id]
@@ -20,15 +21,18 @@ class Player:
         self.queue = []
 
     async def connect_to_vc(self, vc: discord.VoiceChannel):
+        """Connects `Player` to voice channel"""
         if self.vc and self.vc.is_connected():
             return
         self.vc = await vc.connect()
 
     async def disconnect(self):
+        """Disconnects `Player` from voice channel"""
         if self.vc and self.vc.is_connected():
             await self.vc.disconnect()
 
     async def add_to_queue(self, *params):
+        """Add `SoundClip`s to queue"""
         self.queue += params
         if (
                 len(self.queue) == len(params)
@@ -37,6 +41,7 @@ class Player:
             await self.check_queue()
 
     async def check_queue(self):
+        """Plays next `SoundClip` in queue, disconnects if queue is empty"""
         if not self.vc.is_connected():
             return
 
