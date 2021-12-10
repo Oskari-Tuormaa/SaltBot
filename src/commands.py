@@ -1,7 +1,9 @@
+import re
+
 import discord
 import numpy as np
 import sympy as sp
-import re
+
 from metadata import get_sounds
 from player import get_player
 

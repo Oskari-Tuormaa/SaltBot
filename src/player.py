@@ -1,6 +1,7 @@
-import discord
 import asyncio
 from typing import Dict
+
+import discord
 
 # Dictionary mapping guild ID's to `Player` objects
 ALL_PLAYERS: Dict[int, "Player"] = dict()

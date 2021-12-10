@@ -1,8 +1,9 @@
-import discord
 import logging
 import logging.handlers
-import traceback
 from pathlib import Path
+
+import discord
+
 from cmd_handler import is_valid_command, execute_commands
 from metadata import root_dir, get_metadata
 

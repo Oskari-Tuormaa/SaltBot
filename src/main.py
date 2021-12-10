@@ -2,8 +2,8 @@ import os
 
 from dotenv import load_dotenv
 
-from salt_client import SaltClient
 from bot_debugging import run_debugging, DebugMode
+from salt_client import SaltClient
 
 # Set debug mode
 DEBUG = DebugMode.REMOTE_DEBUG

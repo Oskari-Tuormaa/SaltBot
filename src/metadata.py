@@ -1,9 +1,9 @@
-from typing import List
-
-import yaml
 import os
 import pathlib
 from dataclasses import dataclass
+from typing import List
+
+import yaml
 
 
 @dataclass()

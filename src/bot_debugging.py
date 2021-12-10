@@ -1,9 +1,7 @@
-import discord
-from salt_client import SaltClient
 import asyncio
 import enum
-from metadata import get_metadata, get_sounds
-from sound_handler import SoundClip
+
+from salt_client import SaltClient
 
 
 class DebugMode(enum.Enum):

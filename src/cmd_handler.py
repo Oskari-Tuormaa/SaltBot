@@ -1,4 +1,5 @@
 import discord
+
 from commands import ALL_COMMANDS
 from sound_handler import is_sound_command, play_sound_commands
 

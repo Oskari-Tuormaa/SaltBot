@@ -1,10 +1,10 @@
-import discord
-import os
 from pathlib import Path
-from commands import ALL_COMMANDS
-from player import get_player
 from typing import List
+
+import discord
+
 from metadata import get_metadata, get_sounds
+from player import get_player
 
 
 def is_sound_command(sound_name: str) -> bool:
