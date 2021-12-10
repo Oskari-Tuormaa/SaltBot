@@ -1,4 +1,3 @@
-import os
 import pathlib
 from dataclasses import dataclass
 from typing import List
@@ -45,7 +44,13 @@ def get_metadata() -> "Metadata":
     )
 
 
+def get_raw_sounds() -> List[str]:
+    """Returns list of all unnormalized sound files"""
+    meta = get_metadata()
+    return [x.name for x in meta.paths.sounds.iterdir() if x.is_file()]
+
+
 def get_sounds() -> List[str]:
     """Returns list of all sound commands"""
     meta = get_metadata()
-    return os.listdir(meta.paths.sounds_normalized)
+    return [x.name for x in meta.paths.sounds_normalized.iterdir() if x.is_file()]

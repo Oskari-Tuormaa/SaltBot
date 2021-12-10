@@ -22,7 +22,7 @@ class SaltClient(discord.Client):
         rot_handler = logging.handlers.RotatingFileHandler(log_file, maxBytes=10e6, backupCount=5)
         logging.basicConfig(format="\n%(asctime)s - %(levelname)s\n%(message)s", handlers=[rot_handler])
 
-        print("Ready!")
+        print("Bot ready!")
 
     async def on_message(self, message: discord.Message):
         if is_valid_command(message):
