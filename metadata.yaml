@@ -1,3 +1,4 @@
 paths:
   sounds: "sounds"
   sounds_normalized: "sounds/normalized"
+  logs: ".logs"

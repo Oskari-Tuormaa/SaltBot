@@ -1,10 +1,14 @@
 import os
+
 from dotenv import load_dotenv
+
 from salt_client import SaltClient
 from bot_debugging import run_debugging, DebugMode
 
+# Set debug mode
 DEBUG = DebugMode.REMOTE_DEBUG
 
+# Get tokens
 load_dotenv()
 TOKEN = os.getenv("DISCORD_TOKEN")
 DEBUG_TOKEN = os.getenv("DISCORD_DEBUG_TOKEN")

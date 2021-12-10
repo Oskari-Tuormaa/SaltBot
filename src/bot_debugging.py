@@ -75,7 +75,7 @@ def run_debugging():
     """ Runs various debugging commands. """
     client = SaltClient()
     messages = [
-        DummyMessage("!vcommands")
+        DummyMessage("!askdjalsd")
     ]
 
     asyncio.run(client.on_ready())
