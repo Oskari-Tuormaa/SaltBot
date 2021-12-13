@@ -116,15 +116,16 @@ async def purge_channel(message: discord.Message):
 async def asciimath(message: discord.Message, *expr):
     """Evaluates `[expr]` using `Sympy`, and renders LaTeX math."""
     expr = " ".join(expr)
-    words = set(re.findall(r"[^\d\s()+*/\-,]+", expr))
+    expr = expr.replace("[", r"[")
+    words = set(re.findall(r"[^\d\s()+*/\\\-,\[\]]+", expr))
 
     for word in words:
         if word.startswith("'"):
-            expr = re.sub(fr"\b{word}\b", f"sp.symbols(\"{word[1:]}\")", expr)
+            expr = re.sub(fr"(?<=\b){word}(?=\b)", f"sp.symbols(\"{word[1:]}\")", expr)
         elif word in sp.__dict__:
-            expr = re.sub(fr"\b{word}\b", "sp." + word, expr)
+            expr = re.sub(fr"(?<=\b){word}(?=\b)", "sp." + word, expr)
         else:
-            expr = re.sub(fr"\b{word}\b", f"sp.symbols(\"{word}\")", expr)
+            expr = re.sub(fr"(?<=\b){word}(?=\b)", f"sp.symbols(\"{word}\")", expr)
 
     try:
         preamble = "\\documentclass[margin=5mm]{standalone}\n" \
