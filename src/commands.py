@@ -1,3 +1,4 @@
+import inspect
 import re
 
 import discord
@@ -21,6 +22,17 @@ def register_command(*names):
     return _register_command
 
 
+@register_command("commands", "help")
+async def commands(message: discord.Message):
+    """Lists all commands."""
+    mes = """Currently available commands:```"""
+    for k in ALL_COMMANDS.keys():
+        mes += k + "\n"
+    mes += """```
+Use `whatis [cmd]` to get additional information for specific command."""
+    await message.channel.send(mes)
+
+
 @register_command("whatis")
 async def whatis(message: discord.Message, target: str):
     """Prints docstring for `[cmd]`."""
@@ -42,16 +54,6 @@ async def whatis(message: discord.Message, target: str):
         await message.channel.send(f"`{signature}`\n\n{doc}")
 
 
-@register_command("commands", "help")
-async def commands(message: discord.Message):
-    """Lists all commands."""
-    mes = """Currently available commands:```"""
-    for k in ALL_COMMANDS.keys():
-        mes += k + "\n"
-    mes += "```"
-    await message.channel.send(mes)
-
-
 @register_command("vcommands")
 async def vcommands(message: discord.Message, ncols: int = 5):
     """Lists all available voice commands. Amount of columns can be specified by `<ncols>`."""
@@ -63,16 +65,16 @@ async def vcommands(message: discord.Message, ncols: int = 5):
     # Pad sound list
     to_pad = ncols - (len(sounds) % ncols)
     if to_pad != 1:
-        sounds = np.append(sounds, [""]*to_pad)
+        sounds = np.append(sounds, [""] * to_pad)
 
     sounds = sounds.reshape((-1, ncols))
 
-    for idx in range(ncols-1):
+    for idx in range(ncols - 1):
         max_len = max([len(x) for x in sounds.T[idx]]) + 3
         sounds.T[idx] = [x.ljust(max_len) for x in sounds.T[idx]]
 
     sounds = "\n".join(["".join(x) for x in sounds])
-    await message.channel.send("```"+sounds+"```")
+    await message.channel.send("```" + sounds + "```")
 
 
 @register_command("leave", "skrid")
