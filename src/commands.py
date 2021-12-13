@@ -10,11 +10,12 @@ from player import get_player
 ALL_COMMANDS = dict()
 
 
-def register_command(name: str):
+def register_command(*names):
     """ Registers command to command dict. """
 
     def _register_command(func):
-        ALL_COMMANDS[name] = func
+        for name in names:
+            ALL_COMMANDS[name] = func
         return func
 
     return _register_command
@@ -40,7 +41,8 @@ async def whatis(message: discord.Message, target: str):
 
         await message.channel.send(f"`{signature}`\n\n{doc}")
 
-@register_command("commands")
+
+@register_command("commands", "help")
 async def commands(message: discord.Message):
     """Lists all commands."""
     mes = """Currently available commands:```"""
@@ -73,7 +75,7 @@ async def vcommands(message: discord.Message, ncols: int = 5):
     await message.channel.send("```"+sounds+"```")
 
 
-@register_command("leave")
+@register_command("leave", "skrid")
 async def vc_leave(message: discord.Message):
     """Disconnects bot from voice channel."""
     guild_id = message.guild.id
