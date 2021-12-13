@@ -49,7 +49,7 @@ def normalize_audio_clips():
         for idx, job in enumerate(jobs):
             print(f"\rNormalizing progress: {100 * idx // n_sounds:>3}%", end="")
 
-    print("\rAll clips normalized.")
+    print("\x1b[2K\rAll clips normalized.")
 
 
 async def play_sound_commands(message: discord.Message, *cmds: List[str]):
