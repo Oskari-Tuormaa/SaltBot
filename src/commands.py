@@ -22,22 +22,27 @@ def register_command(name: str):
 
 @register_command("whatis")
 async def whatis(message: discord.Message, target: str):
-    """`whatis [cmd]`
-
-    Prints docstring for `[cmd]`."""
+    """Prints docstring for `[cmd]`."""
     if target in ALL_COMMANDS:
-        doc = ALL_COMMANDS[target].__doc__
-        if doc is not None:
-            await message.channel.send(doc)
-        else:
-            await message.channel.send("```Command doesn't have docstring.```")
+        func = ALL_COMMANDS[target]
 
+        signature = target
+        for k, v in inspect.signature(func).parameters.items():
+            if k == "message":
+                continue
+
+            if v.default != v.empty:
+                signature += fr" [{v.name} = {v.default}]"
+            else:
+                signature += fr" [{v.name}]"
+
+        doc = func.__doc__
+
+        await message.channel.send(f"`{signature}`\n\n{doc}")
 
 @register_command("commands")
 async def commands(message: discord.Message):
-    """`commands`
-
-    Lists all commands."""
+    """Lists all commands."""
     mes = """Currently available commands:```"""
     for k in ALL_COMMANDS.keys():
         mes += k + "\n"
@@ -47,9 +52,7 @@ async def commands(message: discord.Message):
 
 @register_command("vcommands")
 async def vcommands(message: discord.Message, ncols: int = 5):
-    """`vcommands [ncols]`
-
-    Lists all available voice commands. Amount of columns can be specified by `<ncols>`."""
+    """Lists all available voice commands. Amount of columns can be specified by `<ncols>`."""
     sounds = np.array([x.split(".mp3")[0] for x in get_sounds()], dtype=object)
     sounds.sort()
 
@@ -72,9 +75,7 @@ async def vcommands(message: discord.Message, ncols: int = 5):
 
 @register_command("leave")
 async def vc_leave(message: discord.Message):
-    """`leave`
-
-    Disconnects bot from voice channel."""
+    """Disconnects bot from voice channel."""
     guild_id = message.guild.id
     player = get_player(guild_id)
 
@@ -83,42 +84,32 @@ async def vc_leave(message: discord.Message):
 
 @register_command("test")
 async def test(message: discord.Message):
-    """`test`
-
-    Simply writes "Test" in channel."""
+    """Simply writes "Test" in channel."""
     await message.channel.send("Test")
 
 
 @register_command("echo")
 async def echo(message: discord.Message, *params):
-    """`echo [message]`
-
-    Echoes the message specified by `[message]`."""
+    """Echoes the message specified by `[message]`."""
     if len(params) > 0:
         await message.channel.send(" ".join(params))
 
 
 @register_command("hello")
 async def hello(message: discord.Message):
-    """`hello`
-
-    Greets user."""
+    """Greets user."""
     await message.channel.send(f"Hello {message.author.name}!")
 
 
 # @register_command("purge")
 async def purge_channel(message: discord.Message):
-    """`purge`
-
-    Deletes all messages in channel."""
+    """Deletes all messages in channel."""
     await message.channel.purge()
 
 
 @register_command("asciimath")
 async def asciimath(message: discord.Message, *expr):
-    """`asciimath [expr]`
-
-    Evaluates `[expr]` using `Sympy`."""
+    """Evaluates `[expr]` using `Sympy`."""
     expr = " ".join(expr)
     words = set(re.findall(r"[^\d\s()+*/\-,]+", expr))
 
