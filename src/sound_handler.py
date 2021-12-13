@@ -1,5 +1,6 @@
+from multiprocessing import Pool
 from pathlib import Path
-from typing import List
+from typing import List, Tuple
 
 import discord
 import pydub
@@ -24,21 +25,31 @@ def process_sound_commands(*cmds) -> List["SoundClip"]:
     return [SoundClip(x) for x in cmds]
 
 
+# def normalize_audio_clip(clip_in: Path, clip_out: Path, target_volume: int):
+def normalize_audio_clip(in_tuple: Tuple[Path, Path, int]):
+    """Normalizes audio clip to target volume"""
+    clip_in, clip_out, target_volume = in_tuple
+    sound = pydub.AudioSegment.from_file(clip_in)
+    norm_sound = sound.apply_gain(target_volume - sound.dBFS)
+    norm_sound.export(clip_out)
+
+
 def normalize_audio_clips():
-    """Normalizes all available audioclips"""
+    """Normalizes all available audioclips in parallel"""
     in_path = get_metadata().paths.sounds
     out_path = get_metadata().paths.sounds_normalized
     out_path.mkdir(exist_ok=True)
 
     n_sounds = len(get_raw_sounds())
-    for idx, sound_name in enumerate(get_raw_sounds()):
-        percent_done = idx / n_sounds
-        print(f"\x1b[1K\r[{'#' * int(10 * percent_done):.<10}] Normalizing: {sound_name}", end="")
-        sound_path = Path(in_path, sound_name)
-        sound = pydub.AudioSegment.from_file(sound_path)
-        norm_sound = sound.apply_gain(-20 - sound.dBFS)
-        norm_sound.export(Path(out_path, sound_name))
-    print("\x1b[1K\rAudio normalization done.")
+    with Pool(8) as p:
+        jobs = p.imap_unordered(normalize_audio_clip, [
+            (Path(in_path, sound), Path(out_path, sound), -20) for sound in get_raw_sounds()
+        ])
+
+        for idx, job in enumerate(jobs):
+            print(f"\rNormalizing progress: {100 * idx // n_sounds:>3}%", end="")
+
+    print("\rAll clips normalized.")
 
 
 async def play_sound_commands(message: discord.Message, *cmds: List[str]):
