@@ -1,5 +1,6 @@
 import inspect
 import re
+from io import BytesIO
 
 import discord
 import numpy as np
@@ -113,7 +114,7 @@ async def purge_channel(message: discord.Message):
 
 @register_command("asciimath")
 async def asciimath(message: discord.Message, *expr):
-    """Evaluates `[expr]` using `Sympy`."""
+    """Evaluates `[expr]` using `Sympy`, and renders LaTeX math."""
     expr = " ".join(expr)
     words = set(re.findall(r"[^\d\s()+*/\-,]+", expr))
 
@@ -126,10 +127,19 @@ async def asciimath(message: discord.Message, *expr):
             expr = re.sub(fr"\b{word}\b", f"sp.symbols(\"{word}\")", expr)
 
     try:
-        res = sp.pretty(eval(expr), use_unicode=True)
+        preamble = "\\documentclass[margin=5mm]{standalone}\n" \
+                   "\\usepackage{amsmath,amsfonts}\n" \
+                   "\\begin{document}" \
+                   "\\Huge"
+
+        image_obj = BytesIO()
+        sp.preview(f"${sp.latex(eval(expr))}$", output="png", viewer="BytesIO", outputbuffer=image_obj,
+                   preamble=preamble)
+        image_obj.seek(0)
+
+        file = discord.File(image_obj, filename="result.png")
+        await message.channel.send(file=file)
     except (SyntaxError, TypeError,
             ZeroDivisionError, ValueError) as err:
         await message.channel.send(err)
         return
-    mes = f"""```{res}```"""
-    await message.channel.send(mes)
