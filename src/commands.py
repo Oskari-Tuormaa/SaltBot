@@ -119,11 +119,11 @@ async def asciimath(message: discord.Message, *expr):
 
     for word in words:
         if word.startswith("'"):
-            expr = expr.replace(word, f"sp.symbols(\"{word[1:]}\")")
+            expr = re.sub(fr"\b{word}\b", f"sp.symbols(\"{word[1:]}\")", expr)
         elif word in sp.__dict__:
-            expr = expr.replace(word, "sp." + word)
+            expr = re.sub(fr"\b{word}\b", "sp." + word, expr)
         else:
-            expr = expr.replace(word, f"sp.symbols(\"{word}\")")
+            expr = re.sub(fr"\b{word}\b", f"sp.symbols(\"{word}\")", expr)
 
     try:
         res = sp.pretty(eval(expr), use_unicode=True)
