@@ -29,6 +29,7 @@ def bot_wrapper(token: str):
 
             # Check for new commits on origin
             branch = repo.active_branch
+            repo.remotes.origin.fetch()
             n_new = len(list(repo.iter_commits(f"{branch}..origin/{branch}")))
 
             # If new commits detected
@@ -40,9 +41,10 @@ def bot_wrapper(token: str):
                 normalize_audio_clips()
 
                 # Restart client
-                task = asyncio.get_running_loop().create_task(client.close())
-                asyncio.ensure_future(task)
+                task = loop.create_task(client.close())
+                while not task.done():
+                    pass
 
-                client.run(token)
+                loop.create_task(client.start(token))
     except (KeyboardInterrupt, InterruptedError):
         p.terminate()
