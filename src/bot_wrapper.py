@@ -1,4 +1,5 @@
 import asyncio
+import logging
 from time import sleep
 
 import git
@@ -26,6 +27,7 @@ def bot_wrapper(token: str):
 
         # If new commits detected
         if n_new > 0:
+            logging.info(f"Pulling from {branch}")
             repo.remotes.origin.pull()
 
             # Renormalize audio
