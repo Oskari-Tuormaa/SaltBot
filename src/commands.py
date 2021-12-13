@@ -120,7 +120,9 @@ async def asciimath(message: discord.Message, *expr):
     words = set(re.findall(r"[^\d\s()+*/\\\-,\[\]]+", expr))
 
     for word in words:
-        if word.startswith("'"):
+        if word in ["True", "False"]:
+            continue
+        elif word.startswith("'"):
             expr = re.sub(fr"(?<=\b){word}(?=\b)", f"sp.symbols(\"{word[1:]}\")", expr)
         elif word in sp.__dict__:
             expr = re.sub(fr"(?<=\b){word}(?=\b)", "sp." + word, expr)
