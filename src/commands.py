@@ -144,3 +144,8 @@ async def asciimath(message: discord.Message, *expr):
             ZeroDivisionError, ValueError) as err:
         await message.channel.send(err)
         return
+
+
+@register_command("asd")
+async def asd(message):
+    await message.channel.send("asd")
