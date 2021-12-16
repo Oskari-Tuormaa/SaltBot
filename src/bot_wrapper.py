@@ -1,17 +1,19 @@
+import sys
 import asyncio
 import logging
+import importlib
 from multiprocessing import Process
 from time import sleep
 
 import git
 
-from metadata import root_dir
-from salt_client import SaltClient
-from sound_handler import normalize_audio_clips
-
 
 def bot_wrapper(token: str):
-    # normalize_audio_clips()
+    from metadata import root_dir
+    from salt_client import SaltClient
+    from sound_handler import normalize_audio_clips
+
+    normalize_audio_clips()
 
     client = SaltClient()
 
@@ -42,8 +44,15 @@ def bot_wrapper(token: str):
 
                 # Restart client
                 task = loop.create_task(client.close())
-                while not task.done():
+                while not client.is_closed():
                     pass
+
+                importlib.reload(sys.modules["metadata"])
+                importlib.reload(sys.modules["salt_client"])
+                importlib.reload(sys.modules["sound_handler"])
+                from metadata import root_dir
+                from salt_client import SaltClient
+                from sound_handler import normalize_audio_clips
 
                 loop.create_task(client.start(token))
     except (KeyboardInterrupt, InterruptedError):
