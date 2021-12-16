@@ -11,7 +11,7 @@ from sound_handler import normalize_audio_clips
 
 
 def bot_wrapper(token: str):
-    normalize_audio_clips()
+    # normalize_audio_clips()
 
     client = SaltClient()
 
@@ -25,7 +25,7 @@ def bot_wrapper(token: str):
     try:
         while True:
             # Check once a minute
-            sleep(1)
+            sleep(60)
 
             # Check for new commits on origin
             branch = repo.active_branch

@@ -62,13 +62,12 @@ async def vcommands(message: discord.Message, ncols: int = 5):
     sounds.sort()
 
     ncols = int(ncols)
+    nrows = 1 + len(sounds) // ncols
 
-    # Pad sound list
-    to_pad = ncols - (len(sounds) % ncols)
-    if to_pad != 1:
-        sounds = np.append(sounds, [""] * to_pad)
-
-    sounds = sounds.reshape((-1, ncols))
+    # Pad and reshape sound list
+    sounds.resize((1, ncols * nrows))
+    sounds[sounds == 0] = ""
+    sounds = sounds.reshape((nrows, ncols))
 
     for idx in range(ncols - 1):
         max_len = max([len(x) for x in sounds.T[idx]]) + 3

@@ -16,7 +16,7 @@ rot_handler = logging.handlers.RotatingFileHandler(log_file, maxBytes=10e6, back
 logging.basicConfig(format="\n%(asctime)s - %(levelname)s\n%(message)s", handlers=[rot_handler], level=logging.INFO)
 
 # Set debug mode
-DEBUG = DebugMode.REMOTE_DEBUG
+DEBUG = DebugMode.LIVE
 
 # Get tokens
 load_dotenv()
