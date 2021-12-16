@@ -27,10 +27,9 @@ def register_command(*names):
 async def commands(message: discord.Message):
     """Lists all commands."""
     mes = """Currently available commands:```"""
-    for k in ALL_COMMANDS.keys():
+    for k in sorted(ALL_COMMANDS.keys()):
         mes += k + "\n"
-    mes += """```
-Use `whatis [cmd]` to get additional information for specific command."""
+    mes += """```Use `whatis [cmd]` to get additional information for specific command."""
     await message.channel.send(mes)
 
 
