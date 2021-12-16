@@ -11,7 +11,7 @@ from sound_handler import normalize_audio_clips
 
 
 def bot_wrapper(token: str):
-    # normalize_audio_clips()
+    normalize_audio_clips()
 
     client = SaltClient()
 
