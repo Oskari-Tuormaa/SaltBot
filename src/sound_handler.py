@@ -46,6 +46,9 @@ def normalize_audio_clips():
             (Path(in_path, sound), Path(out_path, sound), -20) for sound in get_raw_sounds()
         ])
 
+        for job in jobs:
+            pass
+
 
 async def play_sound_commands(message: discord.Message, *cmds: List[str]):
     """Plays list of sound commands on associated `Player`"""
