@@ -1,5 +1,6 @@
 import asyncio
 import logging
+import subprocess
 from multiprocessing import Process
 from time import sleep
 
@@ -11,14 +12,14 @@ from sound_handler import normalize_audio_clips
 
 
 def bot_wrapper(token: str):
-    normalize_audio_clips()
-
     client = SaltClient()
 
     loop = asyncio.get_event_loop()
     loop.create_task(client.start(token))
     p = Process(target=loop.run_forever)
     p.start()
+
+    normalize_audio_clips()
 
     repo = git.Repo(root_dir())
 

@@ -57,7 +57,7 @@ async def whatis(message: discord.Message, target: str):
 
 @register_command("vcommands")
 async def vcommands(message: discord.Message, ncols: int = 5):
-    """Lists all available voice commands. Amount of columns can be specified by `<ncols>`."""
+    """Lists all available voice commands. Amount of columns can be specified by `[ncols]`."""
     sounds = np.array([x.split(".mp3")[0] for x in get_sounds()], dtype=object)
     sounds.sort()
 
