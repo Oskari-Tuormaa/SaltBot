@@ -55,7 +55,7 @@ async def whatis(message: discord.Message, target: str):
         await message.channel.send(f"`{signature}`\n\n{doc}")
 
 
-@register_command("vcommands")
+@register_command("vcommands", "vc")
 async def vcommands(message: discord.Message, ncols: int = 5):
     """Lists all available voice commands. Amount of columns can be specified by `[ncols]`."""
     sounds = np.array([x.split(".mp3")[0] for x in get_sounds()], dtype=object)
